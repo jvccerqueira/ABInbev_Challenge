@@ -7,29 +7,44 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 # %%
 @retry(
-    stop=stop_after_attempt(5),  # Máximo de 5 tentativas
-    wait=wait_exponential(multiplier=1, min=1, max=16),  # Espera exponencial (1s, 2s, 4s, ...)
-    retry=(lambda exc: isinstance(exc, requests.Timeout))  # Tenta novamente apenas para Rate Limit Exceeded
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, min=1, max=16),
+    retry=(lambda exc: isinstance(exc, requests.Timeout))
 )
-def retrieve_raw_json(url, bronze_path):
+def retrieve_raw_json(url, raw_path):
     print('Retrieving data from API')
+
     response = requests.get(url)
     try:
-        if response.status_code == 200:
-            data = response.json()
-            file_path = f"{bronze_path}/breweries_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-            with open(file_path, "w") as file:
-                file.write(str(data))
-            return "Success"
+        data = response.json()
+        file_name = f"breweries_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        file_path = f"{raw_path}/{file_name}"
+        with open(file_path, "w") as file:
+            file.write(str(data))
+        return file_name
     except requests.HTTPError as e:
         return e
+    
+def process_json(filename, raw, fixed_path):
+    print('Processing JSON file')
+    file_path = f"{raw}/{filename}"
+    output_file = f"{fixed_path}/fixed_{filename}"
+    with open(file_path, "r") as infile, open(output_file, "w") as outfile:
+        for line in infile:
+            fixed_line = line.replace("'", '"').replace(" None", " null")
+            outfile.write(fixed_line)
 # %%
 if __name__ == "__main__":
     print("Running bronze_processing.py")
     load_dotenv()
+    api_url = os.getenv('API_URL')
 
     bronze_dir = os.getenv('BRONZE_DIR')
-    api_url = os.getenv('API_URL')
-    retrieve_raw_json(api_url, bronze_dir)
+    os.makedirs(bronze_dir, exist_ok=True)
+    raw_path = f"{bronze_dir}/raw"
+    os.makedirs(raw_path, exist_ok=True)
+    fixed_path = f"{bronze_dir}/fixed"
+    os.makedirs(fixed_path, exist_ok=True)
 
-# %%
+    file_name  = retrieve_raw_json(api_url, raw_path)
+    process_json(file_name, raw_path, fixed_path)
