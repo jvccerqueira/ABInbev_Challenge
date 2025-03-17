@@ -8,8 +8,9 @@ def gold_processing():
     load_dotenv()
     spark = SparkSession.builder.appName("Gold Processing").getOrCreate()
 
-    silver_path = os.getenv("SILVER_DIR")
-    gold_path = os.getenv("GOLD_DIR")
+    data_lake = os.getenv("DATA_LAKE")
+    silver_path = f'{data_lake}/silver'
+    gold_path = f'{data_lake}/gold'
 
     # %%
     parquet_files = os.listdir(silver_path)

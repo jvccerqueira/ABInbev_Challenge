@@ -3,14 +3,8 @@ import os
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 # %%
-@retry(
-    stop=stop_after_attempt(5),
-    wait=wait_exponential(multiplier=1, min=1, max=16),
-    retry=(lambda exc: isinstance(exc, requests.Timeout))
-)
 def retrieve_raw_json(url, raw_path):
     print('Retrieving data from API')
 
@@ -33,13 +27,15 @@ def process_json(filename, raw, fixed_path):
         for line in infile:
             fixed_line = line.replace("'", '"').replace(" None", " null")
             outfile.write(fixed_line)
+
 # %%
 if __name__ == "__main__":
     print("Running bronze_processing.py")
     load_dotenv()
     api_url = os.getenv('API_URL')
+    data_lake = os.getenv('DATA_LAKE')
 
-    bronze_dir = os.getenv('BRONZE_DIR')
+    bronze_dir = f'{data_lake}/bronze'
     os.makedirs(bronze_dir, exist_ok=True)
     raw_path = f"{bronze_dir}/raw"
     os.makedirs(raw_path, exist_ok=True)

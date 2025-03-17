@@ -1,18 +1,17 @@
 # %%
 import os
-import json
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import upper
 
 
 def silver_layer_processing():
     load_dotenv()
     spark = SparkSession.builder.appName("BreweryPipeline").getOrCreate()
 
-    bronze_path = os.getenv("BRONZE_DIR")
+    data_lake = os.getenv("DATA_LAKE")
+    bronze_path = f'{data_lake}/bronze'
     os.makedirs(bronze_path, exist_ok=True)
-    silver_path = os.getenv("SILVER_DIR")
+    silver_path = f'{data_lake}/silver'
     os.makedirs(silver_path, exist_ok=True)
 
     fixed_path = f'{bronze_path}/fixed'
@@ -24,7 +23,6 @@ def silver_layer_processing():
         if fixed.endswith(".json"):
             print(fixed)
             df = spark.read.option("multiLine", "true").json(f'{fixed_path}/{fixed}')
-            df = df.withColumn('state', upper(df['state']))
 
             # Saving processed data in parque files
             file_path = f"{silver_path}/breweries"
