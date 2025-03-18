@@ -5,6 +5,8 @@
 
 ENV_FILE=".env"
 
+mkdir -p data-lake/{bronze,bronze/raw,bronze/processed,bronze/fixed,silver,gold}
+
 echo "API_URL='https://api.openbrewerydb.org/breweries'" > $ENV_FILE
 echo "DATA_LAKE=$(pwd)/data_lake" >> $ENV_FILE
 
