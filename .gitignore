@@ -1,9 +1,4 @@
 .venv
+.env
 *.json
-bronze/
-silver/
-gold/
-logs/
-config/
-plugins/
 __pycache__/
