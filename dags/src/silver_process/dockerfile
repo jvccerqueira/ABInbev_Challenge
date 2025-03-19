@@ -1,0 +1,9 @@
+FROM apache/spark-py:latest
+
+WORKDIR /app
+
+COPY silver_processing.py .
+
+ENV DATA_LAKE="/data_lake"
+
+CMD ["/opt/spark/bin/spark-submit", "silver_processing.py"]
