@@ -8,11 +8,14 @@ from pyspark.sql import SparkSession
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.sensors.filesystem import FileSensor
+from airflow.providers.docker.operators.docker import DockerOperator
+from docker._types import Mount
 
 load_dotenv()
 
 api_url = os.getenv('API_URL')
 data_lake = os.getenv('DATA_LAKE')
+docker_url = os.getenv('DOCKER_URL')
 
 def retrieve_raw_json(ti, url, data_lake):
     print('Retrieving data from API')
@@ -166,11 +169,24 @@ with DAG(
         op_kwargs={"data_lake": data_lake},
         trigger_rule="one_success"
     )
+    gen_parquet_partition_by_location = DockerOperator(
+        task_id="gen_parquet_partition_by_location",
+        image="silver-processing:latest",
+        api_version="auto",
+        auto_remove="success",
+        command=["/opt/spark/bin/spark-submit", "silver_processing.py"],
+        docker_url=docker_url,
+        mounts=[Mount(source=data_lake, target="/data_lake", type="bind")],
+    )
 
-    gen_view_by_brewery_and_location = PythonOperator(
+    gen_view_by_brewery_and_location = DockerOperator(
         task_id="gen_view_by_brewery_and_location",
-        python_callable=gen_view_by_brewery_and_location,
-        op_kwargs={"data_lake": data_lake}
+        image="gold-processing:latest",
+        api_version="auto",
+        auto_remove="success",
+        command=["/opt/spark/bin/spark-submit", "gold_processing.py"],
+        docker_url=docker_url,
+        mounts=[Mount(source=data_lake, target="/data_lake", type="bind")],
     )
 
     end = EmptyOperator(task_id="end")

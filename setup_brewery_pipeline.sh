@@ -20,7 +20,7 @@ CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${A
 
 pip install "apache-airflow[async,postgres]==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
 
-pip install pyspark requests python-dotenv apache-airflow-providers-docker
+pip install requests python-dotenv apache-airflow-providers-docker
 
 docker build -t silver-processing:latest ./dags/src/silver_process/
 
