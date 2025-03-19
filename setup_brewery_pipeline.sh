@@ -3,7 +3,6 @@
 # Need to have java jdk installed
 # Need to have python3 installed
 
-
 mkdir -p data_lake/{bronze,bronze/raw,bronze/processed,bronze/fixed,silver,gold}
 
 ENV_FILE=".env"
