@@ -15,7 +15,7 @@ All data transformations are developed with PySpark and all its distributed proc
 
 > [!IMPORTANT]
 > Before proceed, make sure that you have the following softwares installed on your system
-> * Java JDK - Versions 8 or 11 are recommended
+> * Docker
 > * Python 3
 
 To configure this pipeline, follow these steps
@@ -27,7 +27,7 @@ To configure this pipeline, follow these steps
    - By default Airflow will run a web service on `localhost:8080` once you access it in your browser a user and password will be request
      * User is `admin` by default
      * Password you can get it on the CLI Lines on the terminal that the setup script was executed or on the file `standalone_admin_password.txt` that is automatically generate on the folder where you cloned this repository
-4. Inside Airflow UI you can search for DAG `Brewery_Pipeline` and execute it. This will trigger the process to download and trasnform brewery data
+4. Inside Airflow UI you can search for DAG `Brewery_Pipeline` and execute it. This will trigger the process to download and transform brewery data, this can also be triggered via terminal running `airflow dags trigger Brewery_Pipeline`
    
 This process will create the folder `data_lake` inside the directory you cloned this repository
 - `data_lake`
