@@ -26,6 +26,10 @@ docker build -t silver-processing:latest ./dags/src/silver_process/
 
 docker build -t gold-processing:latest ./dags/src/gold_process/
 
+docker context use default
+
+chmod -R 777 .
+
 export AIRFLOW_HOME=$(pwd)
 airflow standalone
 # airflow dags trigger Brewery_Pipeline

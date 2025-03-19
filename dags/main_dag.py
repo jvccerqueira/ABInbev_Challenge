@@ -4,12 +4,11 @@ import json
 from airflow import DAG
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from pyspark.sql import SparkSession
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.sensors.filesystem import FileSensor
 from airflow.providers.docker.operators.docker import DockerOperator
-from docker._types import Mount
+from docker.types import Mount
 
 load_dotenv()
 
@@ -68,38 +67,6 @@ def process_json(ti, data_lake):
     
     ti.xcom_push(key="fixed", value=f'fixed_{filename}')
     return f'fixed_{filename}'
-
-def gen_parquet_partition_by_location(ti, data_lake):
-    spark = SparkSession.builder.appName("BreweryPipeline").getOrCreate()
-
-    fixed = ti.xcom_pull(task_ids=["move_json_file", "process_json"], key="fixed")[0]
-
-    fixed_path = f'{data_lake}/bronze/fixed'
-    silver_path = f'{data_lake}/silver'
-    processed_path = f'{data_lake}/bronze/processed'
-    location = 'state'
-
-    df = spark.read.option("multiLine", "true").json(f'{fixed_path}/{fixed}')
-
-    # Saving processed data in parque files
-    file_path = f"{silver_path}/breweries"
-    df.write.partitionBy(location).mode("overwrite").parquet(file_path)
-
-    # Moving processed files to processed folder
-    original_path = os.path.join(fixed_path, fixed)
-    new_path = os.path.join(processed_path, fixed)
-    os.rename(original_path, new_path)
-
-def gen_view_by_brewery_and_location(data_lake):
-    spark = SparkSession.builder.appName("Gold Processing").getOrCreate()
-
-    parquet_path = f'{data_lake}/silver/breweries'
-    gold_path = f'{data_lake}/gold'
-
-    df = spark.read.parquet(parquet_path)
-    selected_df = df.select("state", "brewery_type")
-    selected_df = selected_df.groupBy("state", "brewery_type").count().orderBy("state", "brewery_type")
-    selected_df.write.mode("overwrite").parquet(f"{gold_path}/view_by_state_brewery_type")
 
 def notificator(context):
     task_id = context['task_instance'].task_id
@@ -163,12 +130,6 @@ with DAG(
         op_kwargs={"data_lake": data_lake}
     )
 
-    gen_parquet_partition_by_location = PythonOperator(
-        task_id="gen_parquet_partition_by_location",
-        python_callable=gen_parquet_partition_by_location,
-        op_kwargs={"data_lake": data_lake},
-        trigger_rule="one_success"
-    )
     gen_parquet_partition_by_location = DockerOperator(
         task_id="gen_parquet_partition_by_location",
         image="silver-processing:latest",
@@ -177,6 +138,7 @@ with DAG(
         command=["/opt/spark/bin/spark-submit", "silver_processing.py"],
         docker_url=docker_url,
         mounts=[Mount(source=data_lake, target="/data_lake", type="bind")],
+        trigger_rule="one_success"
     )
 
     gen_view_by_brewery_and_location = DockerOperator(
