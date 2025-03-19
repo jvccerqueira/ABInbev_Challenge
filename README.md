@@ -8,7 +8,7 @@ All data transformations are developed with PySpark and all its distributed proc
 
 ## Instalation and Execution
 >[!NOTE]
->This pipeline was developed in Linux so it will be better executed on UNIX based OS's, such as macOS and Linux Distributions. On Windows it is recommended to use WSL with Ubuntu.
+>This pipeline was developed with Ubuntu running with WSL in Windows
 
 >[!TIP]
 >Searching for Ubuntu on Microsoft Store you can download and access all Ubuntu feature inside windows, for example run a Ubuntu CLI, which will be the only tool we will need to proceed with instalation.
@@ -16,6 +16,7 @@ All data transformations are developed with PySpark and all its distributed proc
 > [!IMPORTANT]
 > Before proceed, make sure that you have the following softwares installed on your system
 > * Docker
+>   * Inside the script `setup_brewery_pipeline.sh` there is the command to create the variable `DOCKER_URL` which pointing to the default target in linux, if your docker is set in another folder, please change this variable to point to your folder
 > * Python 3
 
 To configure this pipeline, follow these steps
