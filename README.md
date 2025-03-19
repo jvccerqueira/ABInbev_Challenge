@@ -8,13 +8,13 @@ All data transformations are developed with PySpark and all its distributed proc
 
 ## Instalation and Execution
 >[!NOTE]
->This pipeline was developed in Linux so it will be better executed on UNIX based OS's, such as macOS and Linux Distributions. On Windows it is recommended to use WSL tool to run Ubuntu.
+>This pipeline was developed in Linux so it will be better executed on UNIX based OS's, such as macOS and Linux Distributions. On Windows it is recommended to use WSL with Ubuntu.
 
 >[!TIP]
 >Searching for Ubuntu on Microsoft Store you can download and access all Ubuntu feature inside windows, for example run a Ubuntu CLI, which will be the only tool we will need to proceed with instalation.
 
 > [!IMPORTANT]
-> Before proceed make sure that you have the following softwares installed on your system
+> Before proceed, make sure that you have the following softwares installed on your system
 > * Java JDK - Versions 8 or 11 are recommended
 > * Python 3
 
@@ -23,10 +23,10 @@ To configure this pipeline, follow these steps
 2. Change the permissions of the file `setup_brewery_pipeline.sh` to make it executable
    * Inside the folder where the repository was cloned run `chmod +x setup_brewery_pipeline.sh` 
 3. Run the script with `./setup_brewery_pipeline.sh`
-   This will create all necessary folder, install depencies needed and execute Airflow, once it is up and running on the CLI lines it will show you the password to access the UI 
-   By default Airflow will run a web service on `localhost:8080` once you access it in your browser a user and password will be request
-   * User is `admin` by default
-   * Password you can get it on the CLI Lines on the terminal that the setup script was executed or on the file `standalone_admin_password.txt` that is automatically generate on the folder where you cloned this repository
+   - This will create all necessary folder, install depencies needed and execute Airflow 
+   - By default Airflow will run a web service on `localhost:8080` once you access it in your browser a user and password will be request
+     * User is `admin` by default
+     * Password you can get it on the CLI Lines on the terminal that the setup script was executed or on the file `standalone_admin_password.txt` that is automatically generate on the folder where you cloned this repository
 4. Inside Airflow UI you can search for DAG `Brewery_Pipeline` and execute it. This will trigger the process to download and trasnform brewery data
    
 This process will create the folder `data_lake` inside the directory you cloned this repository
