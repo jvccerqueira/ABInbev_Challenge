@@ -9,7 +9,7 @@ mkdir -p data_lake/{bronze,bronze/raw,bronze/processed,bronze/fixed,silver,gold}
 ENV_FILE=".env"
 echo "API_URL='https://api.openbrewerydb.org/breweries'" > $ENV_FILE
 echo "DATA_LAKE=$(pwd)/data_lake" >> $ENV_FILE
-echo "DOCKER_URL=/var/run/docker.sock" >> $ENV_FILE
+echo "DOCKER_URL=unix://var/run/docker.sock" >> $ENV_FILE
 
 python3 -m venv .venv
 source .venv/bin/activate
